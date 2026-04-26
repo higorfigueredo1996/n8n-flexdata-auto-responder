@@ -1,0 +1,74 @@
+# Ambiente & Variáveis
+.env
+.env.local
+.env.*.local
+
+# API Keys & Credenciais
+*.key
+*.pem
+.credentials/
+credentials.json
+secrets.json
+groq-api-key.txt
+
+# N8N
+.n8n/
+n8n-database.sqlite
+.n8n.json
+
+# Node & NPM
+node_modules/
+npm-debug.log
+yarn.lock
+package-lock.json
+
+# IDE & Editores
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+.env.example.local
+
+# Logs
+logs/
+*.log
+
+# Arquivos temporários
+tmp/
+temp/
+*.tmp
+
+# OS específicos
+Thumbs.db
+.DS_Store
+*.exe
+*.dll
+
+# Backup
+*.bak
+*.backup
+*~
+
+# Configurações locais
+config.local.js
+local-settings.json
+
+# Cache
+.cache/
+.eslintcache
+
+# Build
+dist/
+build/
+
+# Documentação local (em desenvolvimento)
+docs/local-notes.md
+
+# Arquivo para testes locais (não commitar)
+test-config.json
+test-data.json
+
+# Screenshots com dados sensíveis (opcional)
+# screenshots/sensitive/

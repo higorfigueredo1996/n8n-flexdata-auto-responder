@@ -1,0 +1,145 @@
+{
+  "name": "Resposta automática e-mail com Groq",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {}
+          ]
+        },
+        "filters": {},
+        "options": {}
+      },
+      "type": "n8n-nodes-base.microsoftOutlookTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "497e7d2e-4345-41b5-8aef-bbf1c989633e",
+      "name": "Microsoft Outlook Trigger",
+      "credentials": {
+        "microsoftOutlookOAuth2Api": "{{ env.OUTLOOK_CREDENTIALS }}"
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2dbf8649-2e08-4073-b866-3bcfd6234c75",
+              "name": "Remetente",
+              "value": "={{ $json.from }}",
+              "type": "string"
+            },
+            {
+              "id": "c2368354-b7d0-4aa7-8dd7-bad8416be13d",
+              "name": "Assunto",
+              "value": "={{ $json.subject }}",
+              "type": "string"
+            },
+            {
+              "id": "ef32c68b-ad2d-43cb-ac79-848482f760c3",
+              "name": "Mensagem",
+              "value": "={{ $json.bodyPreview }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "c6e22513-68f9-406b-ae23-16e8f40e561f",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama-3.3-70b-versatile\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Você é um assistente virtual da empresa FlexData. Responda educadamente aos clientes com base nas perguntas frequentes abaixo. Se a pergunta não estiver nas perguntas frequentes, diga que o time de atendimento já está lá em contato.\\n\\nFAQs:\\n1. Nosso horário de atendimento é de segunda a sexta, das 8h às 18h.\\n2. Para emitir a segunda via da fatura, acesse https://flexdata.com.br/fatura.\\n3. Para cancelamento, envie uma solicitação para cancelamento@flexdata.com.br.\\n4. Nosso telefone é (11) 4000-1234.\\n5. O prazo de resposta para suporte técnico é de até 24 horas úteis.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"{{ $json.Mensagem }}\"\n    }\n  ],\n  \"max_tokens\": 500,\n  \"temperature\": 0.7\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        416,
+        0
+      ],
+      "id": "bcb2fb62-fbec-4765-82a3-416cfce5b2c5",
+      "name": "HTTP Request",
+      "credentials": {
+        "httpBearerAuth": "{{ env.GROQ_API_CREDENTIALS }}"
+      }
+    },
+    {
+      "parameters": {
+        "toRecipients": "={{ $('Edit Fields').item.json.Remetente }}",
+        "subject": "=RE: {{ $('Edit Fields').item.json.Assunto }}",
+        "bodyContent": "={{ $json.choices[0].message.content }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.microsoftOutlook",
+      "typeVersion": 2,
+      "position": [
+        624,
+        0
+      ],
+      "id": "7d60da22-4586-4b58-b7e6-929de31fd829",
+      "name": "Send a message",
+      "credentials": {
+        "microsoftOutlookOAuth2Api": "{{ env.OUTLOOK_CREDENTIALS }}"
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Microsoft Outlook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  }
+}
